@@ -3,7 +3,7 @@ package view;
 public class AdminView {
 
     public void displayMenu() {
-        System.out.println("=== Admin Menu ===");
+        System.out.println("\n=== Admin Menu ===");
         System.out.println("1. Add Auction House");
         System.out.println("2. Add Auction");
         System.out.println("3. Add Art Object");
@@ -16,7 +16,7 @@ public class AdminView {
         System.out.println("10. View Service Requests");
         System.out.println("11. View Auction Houses");
         System.out.println("0. Logout");
-        System.out.print("Select an option: ");
+        System.out.print("Select an option: \n");
     }
     
     public void showSuccessMessage(String message) {
