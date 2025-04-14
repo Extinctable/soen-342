@@ -1,11 +1,10 @@
-// File: dao/ExpertDAO.java
 package dao;
 
-import model.Expert;
-import model.Schedule;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import model.Expert;
+import model.Schedule;
 
 public class ExpertDAO {
     
@@ -35,21 +34,25 @@ public class ExpertDAO {
     }
     
     public void createExpert(Expert expert) {
-        String sql = "INSERT INTO expert (institution_id, expert_name, expert_contact_address, expert_license_number, area_of_expertise, availability_schedule) VALUES (?, ?, ?, ?, ?, ?)";
+        // Updated SQL to include username and password.
+        String sql = "INSERT INTO expert (username, password, institution_id, expert_name, expert_contact_address, expert_license_number, area_of_expertise, availability_schedule) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
              
-            pstmt.setNull(1, Types.INTEGER); // institution_id (not set yet)
-            pstmt.setString(2, expert.getName());
-            pstmt.setString(3, expert.getContactInfo());
-            pstmt.setString(4, expert.getLicenseNumber());
-            pstmt.setString(5, expertiseSetToString(expert));
-            pstmt.setString(6, scheduleListToString(expert));
+            pstmt.setString(1, expert.getUsername());
+            pstmt.setString(2, expert.getPassword());
+            pstmt.setNull(3, Types.INTEGER); // institution_id (not set yet)
+            pstmt.setString(4, expert.getName());
+            pstmt.setString(5, expert.getContactInfo());
+            pstmt.setString(6, expert.getLicenseNumber());
+            pstmt.setString(7, expertiseSetToString(expert));
+            pstmt.setString(8, scheduleListToString(expert));
             pstmt.executeUpdate();
             
             ResultSet generatedKeys = pstmt.getGeneratedKeys();
             if (generatedKeys.next()) {
-                // Optionally assign the generated ID.
+                // Optionally, set the generated expert ID here
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -65,13 +68,14 @@ public class ExpertDAO {
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 Expert expert = new Expert(
-                    "", // username is not stored separately
-                    "", // password is not persisted here
+                    rs.getString("username"),  // username
+                    rs.getString("password"),  // password
                     rs.getString("expert_name"),
                     rs.getString("expert_contact_address"),
                     rs.getString("expert_license_number")
                 );
-                // Parsing of area_of_expertise and availability_schedule can be added as needed.
+                // Optionally, parse and set the expertise areas and availability schedule
+                // For brevity, we are not parsing them back into collections here.
                 return expert;
             }
         } catch (SQLException ex) {
@@ -89,12 +93,13 @@ public class ExpertDAO {
              
             while (rs.next()) {
                 Expert expert = new Expert(
-                    "",
-                    "",
+                    rs.getString("username"),
+                    rs.getString("password"),
                     rs.getString("expert_name"),
                     rs.getString("expert_contact_address"),
                     rs.getString("expert_license_number")
                 );
+                // Note: Expertise areas and availability schedule are not parsed back in this simple example.
                 experts.add(expert);
             }
         } catch (SQLException ex) {
@@ -104,16 +109,18 @@ public class ExpertDAO {
     }
     
     public void updateExpert(Expert expert, int id) {
-        String sql = "UPDATE expert SET expert_name = ?, expert_contact_address = ?, expert_license_number = ?, area_of_expertise = ?, availability_schedule = ? WHERE expert_id = ?";
+        String sql = "UPDATE expert SET username = ?, password = ?, expert_name = ?, expert_contact_address = ?, expert_license_number = ?, area_of_expertise = ?, availability_schedule = ? WHERE expert_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
              
-            pstmt.setString(1, expert.getName());
-            pstmt.setString(2, expert.getContactInfo());
-            pstmt.setString(3, expert.getLicenseNumber());
-            pstmt.setString(4, expertiseSetToString(expert));
-            pstmt.setString(5, scheduleListToString(expert));
-            pstmt.setInt(6, id);
+            pstmt.setString(1, expert.getUsername());
+            pstmt.setString(2, expert.getPassword());
+            pstmt.setString(3, expert.getName());
+            pstmt.setString(4, expert.getContactInfo());
+            pstmt.setString(5, expert.getLicenseNumber());
+            pstmt.setString(6, expertiseSetToString(expert));
+            pstmt.setString(7, scheduleListToString(expert));
+            pstmt.setInt(8, id);
             pstmt.executeUpdate();
         } catch (SQLException ex) {
             ex.printStackTrace();
