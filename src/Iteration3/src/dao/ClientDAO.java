@@ -9,7 +9,8 @@ import model.Client;
 public class ClientDAO {
 
     public void createClient(Client client) {
-        String sql = "INSERT INTO client (client_email, client_password, client_affiliation, client_contact_info, intent_description, approved, institution_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO client (client_email, client_password, client_affiliation, client_contact_info, intent_description, approved, institution_id) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             
@@ -25,8 +26,7 @@ public class ClientDAO {
             
             ResultSet generatedKeys = pstmt.getGeneratedKeys();
             if (generatedKeys.next()) {
-                int generatedId = generatedKeys.getInt(1);
-                client.setId(generatedId);
+                client.setId(generatedKeys.getInt(1));
             }
         } catch (SQLException ex) {
             ex.printStackTrace();

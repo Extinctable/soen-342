@@ -88,6 +88,8 @@ public class CreateSchema {
                         "auction_house_id INTEGER, " +
                         "auction_name VARCHAR(255) NOT NULL, " +
                         "auction_schedule TIMESTAMP, " +
+                        "is_online BOOLEAN, " +
+                        "viewing_schedule, " +
                         "auction_type VARCHAR(100), " +
                         "FOREIGN KEY (auction_house_id) REFERENCES auction_house(auction_house_id) ON DELETE CASCADE" +
                     ");",

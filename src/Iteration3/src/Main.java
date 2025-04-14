@@ -139,9 +139,21 @@ public class Main {
                 case "1": {
                     Client newClient = registerClient(scanner);
                     if (newClient != null) {
+                        // Check for duplicate email.
+                        ClientDAO clientDAO = new ClientDAO();
+                        boolean duplicate = false;
+                        for (Client existing : clientDAO.getAllClients()) {
+                            if (existing.getUsername().equalsIgnoreCase(newClient.getUsername())) {
+                                duplicate = true;
+                                break;
+                            }
+                        }
+                        if (duplicate) {
+                            System.out.println("A client with that email already exists. Please use a different email.");
+                            continue;  // Re-prompt in the sign-up menu.
+                        }
                         // Mark the new client as NOT approved – waiting for admin approval.
                         newClient.setApproved(false);
-                        ClientDAO clientDAO = new ClientDAO();
                         clientDAO.createClient(newClient);  // Persist in the DB.
                         system.addClient(newClient);         // Add to in‑memory system.
                         System.out.println("Client registration successful! Your account is pending approval by an administrator.");

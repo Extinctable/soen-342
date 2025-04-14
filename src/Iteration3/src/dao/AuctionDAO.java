@@ -1,28 +1,26 @@
-// File: dao/AuctionDAO.java
 package dao;
 
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import model.Auction;
 import model.AuctionHouse;
 import model.Schedule;
-import java.sql.*;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 public class AuctionDAO {
     public void createAuction(Auction auction) {
-        String sql = "INSERT INTO auction (auction_house_id, auction_name, auction_schedule, auction_type, is_online, viewing_schedule) VALUES (?, ?, ?, ?, ?, ?)";
+        // Updated SQL now includes is_online and viewing_schedule.
+        String sql = "INSERT INTO auction (auction_house_id, auction_name, auction_schedule, auction_type, is_online, viewing_schedule) " +
+                     "VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
              
-            // Assume auctionHouse is set in the Auction object.
+            // Assuming auctionHouse is properly set in the Auction object.
             pstmt.setInt(1, auction.getAuctionHouse().getId());
             pstmt.setString(2, auction.getTitle());
-            // Store auction_schedule using the start time (for simplicity).
             pstmt.setTimestamp(3, Timestamp.valueOf(auction.getSchedule().getStartTime()));
             pstmt.setString(4, auction.getSpecialty());
             pstmt.setBoolean(5, auction.isOnline());
-            // Store viewing_schedule using the start time.
             pstmt.setTimestamp(6, Timestamp.valueOf(auction.getViewingSchedule().getStartTime()));
             pstmt.executeUpdate();
             

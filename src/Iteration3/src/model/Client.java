@@ -37,6 +37,7 @@ public class Client extends User {
     
     @Override
     public String toString() {
-        return "Client: " + username + ", affiliation: " + affiliation + ", approved: " + approved;
+        // Updated to include the id so that admins can see each client's unique identifier.
+        return "Client [id=" + id + ", username=" + username + ", affiliation=" + affiliation + ", approved=" + approved + "]";
     }
 }
