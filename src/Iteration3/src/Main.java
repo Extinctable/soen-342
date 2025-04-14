@@ -1,8 +1,6 @@
 // File: Main.java
 import controller.*;
 import dao.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 import model.*;
 import view.*;
@@ -14,13 +12,7 @@ public class Main {
         ArtAdvisorySystem system = new ArtAdvisorySystem();
         
         // Create and set a default administrator.
-        Administrator defaultAdmin = Administrator.getInstance(
-                "admin@system.com", 
-                "adminPass", 
-                "Default Admin", 
-                "admin@system.com", 
-                "1234567890"
-        );
+        Administrator defaultAdmin = Administrator.getInstance("admin@system.com", "adminPass", "Default Admin", "admin@system.com", "1234567890");
         system.setAdministrator(defaultAdmin);
         // Persist the default admin.
         AdministratorDAO adminDAO = new AdministratorDAO();
@@ -33,7 +25,7 @@ public class Main {
         while (true) {
             System.out.println("\n=== Welcome to the Art Advisory System ===");
             System.out.println("1. Login");
-            System.out.println("2. Sign Up");
+            System.out.println("2. Sign Up (Client Only)");
             System.out.println("0. Exit");
             System.out.print("Enter your choice: ");
             mainChoice = scanner.nextLine();
@@ -95,10 +87,14 @@ public class Main {
                     ClientDAO clientDAO = new ClientDAO();
                     Client client = authenticateClient(clientUsername, clientPassword, clientDAO);
                     if (client != null) {
-                        System.out.println("Client login successful!");
-                        ClientView clientView = new ClientView();
-                        ClientController clientController = new ClientController(system, clientView, client);
-                        clientController.handleMenu(scanner);
+                        if (!client.isApproved()) {
+                            System.out.println("Your account is pending administrator approval. Please try again later.");
+                        } else {
+                            System.out.println("Client login successful!");
+                            ClientView clientView = new ClientView();
+                            ClientController clientController = new ClientController(system, clientView, client);
+                            clientController.handleMenu(scanner);
+                        }
                     } else {
                         System.out.println("Invalid client credentials. Please try again.");
                     }
@@ -127,14 +123,12 @@ public class Main {
         }
     }
     
-    // Sign-up procedure: allows new clients or experts to register.
-    // If an invalid option is entered, it re-displays the sign-up menu.
+    // Sign-up procedure: allows new clients to register.
+    // Experts are not allowed to sign up.
     private static void signUpProcedure(Scanner scanner, ArtAdvisorySystem system) {
         while (true) {
             System.out.println("\n=== Sign Up Menu ===");
-            System.out.println("Select role to sign up:");
-            System.out.println("1. Client");
-            System.out.println("2. Expert");
+            System.out.println("1. Client Sign Up");
             System.out.println("0. Return to Main Menu");
             System.out.print("Enter your choice: ");
             String roleChoice = scanner.nextLine();
@@ -145,25 +139,17 @@ public class Main {
                 case "1": {
                     Client newClient = registerClient(scanner);
                     if (newClient != null) {
+                        // Mark the new client as NOT approved – waiting for admin approval.
+                        newClient.setApproved(false);
                         ClientDAO clientDAO = new ClientDAO();
                         clientDAO.createClient(newClient);  // Persist in the DB.
                         system.addClient(newClient);         // Add to in‑memory system.
-                        System.out.println("Client registration successful! You may now login.");
-                    }
-                    break;
-                }
-                case "2": {
-                    Expert newExpert = registerExpert(scanner);
-                    if (newExpert != null) {
-                        ExpertDAO expertDAO = new ExpertDAO();
-                        expertDAO.createExpert(newExpert);  // Persist in the DB.
-                        system.addExpert(newExpert);         // Add to in‑memory system.
-                        System.out.println("Expert registration successful! You may now login.");
+                        System.out.println("Client registration successful! Your account is pending approval by an administrator.");
                     }
                     break;
                 }
                 default:
-                    System.out.println("Invalid role selection. Please try again.");
+                    System.out.println("Invalid selection. Please try again.");
                     continue;
             }
             // After a successful registration, break out of the sign-up loop.
@@ -187,46 +173,7 @@ public class Main {
         System.out.print("Enter your intent description: ");
         String intent = scanner.nextLine();
         Client client = new Client(email, password, name, contact, affiliation, intent);
-        // For this demo, mark the client as approved immediately.
-        client.setApproved(false);
         return client;
-    }
-    
-    // Helper method to register a new expert.
-    private static Expert registerExpert(Scanner scanner) {
-        System.out.println("\n=== Expert Registration ===");
-        System.out.print("Enter your username: ");
-        String username = scanner.nextLine();
-        System.out.print("Enter your password: ");
-        String password = scanner.nextLine();
-        System.out.print("Enter your full name: ");
-        String name = scanner.nextLine();
-        System.out.print("Enter your contact information: ");
-        String contact = scanner.nextLine();
-        System.out.print("Enter your contact address: ");
-        String address = scanner.nextLine();
-        System.out.print("Enter your license number: ");
-        String license = scanner.nextLine();
-        Expert expert = new Expert(username, password, name, contact, license);
-        System.out.print("Enter areas of expertise (comma-separated): ");
-        String expertiseInput = scanner.nextLine();
-        String[] areas = expertiseInput.split(",");
-        for (String area : areas) {
-            expert.addExpertiseArea(area.trim());
-        }
-        System.out.print("Would you like to add an availability schedule? (yes/no): ");
-        String availResponse = scanner.nextLine();
-        if (availResponse.equalsIgnoreCase("yes")) {
-            System.out.print("Enter availability start date-time (yyyy-MM-dd HH:mm): ");
-            String startInput = scanner.nextLine();
-            System.out.print("Enter availability end date-time (yyyy-MM-dd HH:mm): ");
-            String endInput = scanner.nextLine();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            LocalDateTime start = LocalDateTime.parse(startInput, formatter);
-            LocalDateTime end = LocalDateTime.parse(endInput, formatter);
-            expert.addAvailability(new Schedule(start, end));
-        }
-        return expert;
     }
     
     // Helper method to authenticate a client using the ClientDAO.
