@@ -29,6 +29,10 @@ public abstract class User {
     public int getId() {
         return id;
     }
+    // Add a setter for id so that the DAO can update it
+    public void setId(int id) {
+        this.id = id;
+    }
     
     public String getUsername() {
         return username;

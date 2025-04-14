@@ -1,10 +1,10 @@
 // File: dao/ClientDAO.java
 package dao;
 
-import model.Client;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import model.Client;
 
 public class ClientDAO {
 
@@ -13,7 +13,6 @@ public class ClientDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             
-            // We use the client's username field as the email.
             pstmt.setString(1, client.getUsername());
             pstmt.setString(2, client.getPassword());
             pstmt.setString(3, client.getAffiliation());
@@ -26,8 +25,8 @@ public class ClientDAO {
             
             ResultSet generatedKeys = pstmt.getGeneratedKeys();
             if (generatedKeys.next()) {
-                // If desired, assign the generated ID to the client.
-                // e.g., client.setId(generatedKeys.getInt(1));
+                int generatedId = generatedKeys.getInt(1);
+                client.setId(generatedId);
             }
         } catch (SQLException ex) {
             ex.printStackTrace();

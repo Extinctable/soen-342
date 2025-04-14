@@ -34,15 +34,13 @@ public class ExpertDAO {
     }
     
     public void createExpert(Expert expert) {
-        // Updated SQL to include username and password.
-        String sql = "INSERT INTO expert (username, password, institution_id, expert_name, expert_contact_address, expert_license_number, area_of_expertise, availability_schedule) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO expert (username, password, institution_id, expert_name, expert_contact_address, expert_license_number, area_of_expertise, availability_schedule) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
              
             pstmt.setString(1, expert.getUsername());
             pstmt.setString(2, expert.getPassword());
-            pstmt.setNull(3, Types.INTEGER); // institution_id (not set yet)
+            pstmt.setNull(3, Types.INTEGER); // institution_id
             pstmt.setString(4, expert.getName());
             pstmt.setString(5, expert.getContactInfo());
             pstmt.setString(6, expert.getLicenseNumber());
@@ -52,7 +50,8 @@ public class ExpertDAO {
             
             ResultSet generatedKeys = pstmt.getGeneratedKeys();
             if (generatedKeys.next()) {
-                // Optionally, set the generated expert ID here
+                int generatedId = generatedKeys.getInt(1);
+                expert.setId(generatedId);
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
