@@ -1,29 +1,36 @@
 // File: dao/ServiceRequestDAO.java
 package dao;
 
-import model.ServiceRequest;
-import model.Client;
-import model.Expert;
-import model.Auction;
-import model.ArtObject;
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import model.Client;
+import model.Expert;
+import model.ServiceRequest;
 
 public class ServiceRequestDAO {
     public void createServiceRequest(ServiceRequest sr) {
-        String sql = "INSERT INTO service_request (client_id, expert_id, service_type, requested_time, notes, status, object_id, auction_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO service_request (client_id, expert_id, service_type, requested_time, notes, status, object_id, auction_id) "
+                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
              
-            // Note: For proper mapping, the Client and Expert objects should have been persisted
+            // Client ID should not be null since the client exists.
             pstmt.setInt(1, sr.getClient().getId());
-            pstmt.setInt(2, sr.getExpert().getId());
+            
+            // Check if expert is provided. If not, set SQL null.
+            if (sr.getExpert() != null) {
+                pstmt.setInt(2, sr.getExpert().getId());
+            } else {
+                pstmt.setNull(2, Types.INTEGER);
+            }
+            
             pstmt.setString(3, sr.getServiceType());
             pstmt.setTimestamp(4, Timestamp.valueOf(sr.getRequestedTime()));
             pstmt.setString(5, sr.getNotes());
             pstmt.setString(6, sr.getStatus());
+            
+            // For art object and auction, if they are null, set SQL null.
             if (sr.getArtObject() != null) {
                 pstmt.setInt(7, sr.getArtObject().getId());
             } else {
@@ -34,11 +41,12 @@ public class ServiceRequestDAO {
             } else {
                 pstmt.setNull(8, Types.INTEGER);
             }
-            pstmt.executeUpdate();
             
+            pstmt.executeUpdate();
             ResultSet generatedKeys = pstmt.getGeneratedKeys();
             if (generatedKeys.next()) {
-                // Optionally assign the generated ID.
+                // Optionally update the service request ID in the object.
+                // sr.setId(generatedKeys.getInt(1));
             }
         } catch (SQLException ex) {
             ex.printStackTrace();

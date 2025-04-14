@@ -1,10 +1,10 @@
 package controller;
 
+import dao.*;
+import java.time.LocalDateTime;
+import java.util.Scanner;
 import model.*;
 import view.ClientView;
-import dao.*;
-import java.util.Scanner;
-import java.time.LocalDateTime;
 
 public class ClientController {
     private ClientView clientView;
@@ -67,15 +67,20 @@ public class ClientController {
         clientView.showSuccessMessage("Enter any additional notes for the service request:");
         String notes = scanner.nextLine();
         
-        // Create a service request with the current time
         LocalDateTime now = LocalDateTime.now();
-        // In a full implementation, the system should assign an expert; for demonstration we assign the first available expert.
-        Expert assignedExpert = system.getExperts().isEmpty() ? null : system.getExperts().get(0);
+        
+        // Check if there is at least one expert available.
+        if (system.getExperts().isEmpty()) {
+            clientView.showSuccessMessage("No experts are available at the moment. Please try again later.");
+            return;
+        }
+        
+        Expert assignedExpert = system.getExperts().get(0); // or apply the expert assignment logic here.
         
         ServiceRequest sr = new ServiceRequest(client, assignedExpert, serviceType, now, notes);
         system.addServiceRequest(sr);
         serviceRequestDAO.createServiceRequest(sr);
         
         clientView.showSuccessMessage("Service request submitted successfully!");
-    }
+    }    
 }
