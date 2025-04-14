@@ -1,11 +1,11 @@
 package controller;
 
-import model.*;
-import view.AdminView;
 import dao.*;
-import java.util.Scanner;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Scanner;
+import model.*;
+import view.AdminView;
 
 public class AdminController {
     private Administrator administrator;

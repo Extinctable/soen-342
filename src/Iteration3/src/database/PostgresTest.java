@@ -7,8 +7,8 @@ import java.sql.SQLException;
 public class PostgresTest {
     public static void main(String[] args) {
         String url = "jdbc:postgresql://localhost:5432/Soen342";
-        String user = "postgres";     // your DB username
-        String password = "Extinctable4*"; // your DB password
+        String user = "jananaamahathevan";     // your DB username
+        String password = "admin123"; // your DB password
 
         try {
             // Load the PostgreSQL JDBC driver explicitly
