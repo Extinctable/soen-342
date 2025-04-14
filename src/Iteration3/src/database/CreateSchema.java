@@ -6,10 +6,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class CreateSchema {
-    // Database connection parameters
-    private static final String URL = "jdbc:postgresql://localhost:5432/Soen342";
-    private static final String USER = "postgres";
-    private static final String PASSWORD = "Extinctable4*";
+// Database connection parameters
+private static final String URL = "jdbc:postgresql://localhost:5432/Soen342";
+private static final String USER = "jananaamahathevan";  
+private static final String PASSWORD = "admin123"; 
 
     public static void main(String[] args) {
         // Load the PostgreSQL JDBC Driver

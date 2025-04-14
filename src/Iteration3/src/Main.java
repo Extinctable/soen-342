@@ -155,7 +155,8 @@ public class Main {
                         // Mark the new client as NOT approved – waiting for admin approval.
                         newClient.setApproved(false);
                         clientDAO.createClient(newClient);  // Persist in the DB.
-                        system.addClient(newClient);         // Add to in‑memory system.
+                        system.addClient(newClient);      // Add to in‑memory system.
+                        system.addPendingClient(newClient);
                         System.out.println("Client registration successful! Your account is pending approval by an administrator.");
                     }
                     break;
