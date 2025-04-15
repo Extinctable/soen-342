@@ -1,9 +1,18 @@
 package controller;
 
-import dao.*;
+import dao.ArtObjectDAO;
+import dao.AuctionDAO;
+import dao.AuctionHouseDAO;
+import dao.ServiceRequestDAO;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Scanner;
-import model.*;
+import model.ArtAdvisorySystem;
+import model.ArtObject;
+import model.Auction;
+import model.Client;
+import model.Expert;
+import model.ServiceRequest;
 import view.ClientView;
 
 public class ClientController {
@@ -11,6 +20,7 @@ public class ClientController {
     private Client client;
     private ArtAdvisorySystem system;
     private AuctionDAO auctionDAO;
+    private AuctionHouseDAO auctionHouseDAO;
     private ArtObjectDAO artObjectDAO;
     private ServiceRequestDAO serviceRequestDAO;
     
@@ -18,9 +28,11 @@ public class ClientController {
         this.system = system;
         this.clientView = clientView;
         this.client = client;
-        auctionDAO = new AuctionDAO();
-        artObjectDAO = new ArtObjectDAO();
-        serviceRequestDAO = new ServiceRequestDAO();
+        // Instantiate DAO objects to query persistent data.
+        this.auctionDAO = new AuctionDAO();
+        this.auctionHouseDAO = new AuctionHouseDAO();
+        this.artObjectDAO = new ArtObjectDAO();
+        this.serviceRequestDAO = new ServiceRequestDAO();
     }
     
     public void handleMenu(Scanner scanner) {
@@ -47,107 +59,120 @@ public class ClientController {
         }
     }
     
+    // Queries the persistent storage for auctions.
     private void viewAuctions() {
-        clientView.showSuccessMessage("Available Auctions:");
-        for (Auction auction : system.getAuctions()) {
-            clientView.showSuccessMessage(auction.toString());
+        clientView.showSuccessMessage("=== Available Auctions ===");
+        List<Auction> auctions = auctionDAO.getAllAuctions(auctionHouseDAO);
+        if (auctions == null || auctions.isEmpty()) {
+            clientView.showSuccessMessage("No auctions available.");
+        } else {
+            for (Auction auction : auctions) {
+                clientView.showSuccessMessage(auction.toString());
+            }
         }
     }
     
+    // Queries the persistent storage for art objects.
     private void viewArtObjects() {
-        clientView.showSuccessMessage("Available Art Objects:");
-        for (ArtObject obj : system.getArtObjects()) {
-            clientView.showSuccessMessage(obj.toString());
+        clientView.showSuccessMessage("=== Available Art Objects ===");
+        List<ArtObject> artObjects = artObjectDAO.getAllArtObjects();
+        if (artObjects == null || artObjects.isEmpty()) {
+            clientView.showSuccessMessage("No art objects available.");
+        } else {
+            for (ArtObject obj : artObjects) {
+                clientView.showSuccessMessage(obj.toString());
+            }
         }
     }
     
+    // Searches for an expert by specialty using persistent data.
     private Expert findExpertBySpecialty(String specialty) {
-        for (Expert expert : system.getExperts()) {
-            if (expert.getExpertiseAreas().contains(specialty)) {
-                return expert;
+        // Optionally, you could instantiate ExpertDAO here.
+        // For simplicity, we iterate over the experts returned by the DAO.
+        List<Expert> experts = (new dao.ExpertDAO()).getAllExperts();
+        if (experts != null) {
+            for (Expert expert : experts) {
+                if (expert.getExpertiseAreas().contains(specialty)) {
+                    return expert;
+                }
             }
         }
         return null; 
     }
     
+    // Allows the client to request a service by selecting a service type and item.
     private void requestService(Scanner scanner) {
         clientView.showSuccessMessage("Choose the type of service you want:");
         clientView.showSuccessMessage("1. Consultation for Objects of Interest");
         clientView.showSuccessMessage("2. Consultation for Auction");
         clientView.showSuccessMessage("Enter 1 or 2:");   
-
+    
         int choice = scanner.nextInt();
-        scanner.nextLine();
+        scanner.nextLine(); // consume newline
         String serviceType;
-        String specialty;
-        Expert assignedExpert;
+        String specialty = "";
+        Expert assignedExpert = null;
+        ArtObject selectedObject = null;
+        Auction selectedAuction = null;
+    
         switch (choice) {
             case 1:
                 serviceType = "Consultation for Objects of Interest";
                 clientView.showSuccessMessage("Enter object ID:");
                 int objectID = scanner.nextInt();
-                ArtObject selectedObject = null;
-                for (ArtObject obj : system.getArtObjects()) {
+                scanner.nextLine();
+                List<ArtObject> artObjects = artObjectDAO.getAllArtObjects();
+                for (ArtObject obj : artObjects) {
                     if (obj.getId() == objectID) {
                         selectedObject = obj;
                         break;
                     }
                 }
-
                 if (selectedObject == null) {
-                    System.out.println("ArtObject with ID " + objectID + " not found.");
+                    clientView.showSuccessMessage("ArtObject with ID " + objectID + " not found.");
                     return;
                 }
-
-                // Display specialty (type)
                 clientView.showSuccessMessage("You selected: " + selectedObject.getTitle());
                 clientView.showSuccessMessage("Specialty (Type): " + selectedObject.getType());
-
-                //assign to expert
                 specialty = selectedObject.getType();
                 assignedExpert = findExpertBySpecialty(specialty);
-
                 break;
-
+    
             case 2:
                 serviceType = "Consultation for Auction";
                 clientView.showSuccessMessage("Enter auction ID:");
                 int auctionID = scanner.nextInt();
-                Auction selectedAuction = null;
-                for (Auction auction : system.getAuctions()) {
+                scanner.nextLine();
+                List<Auction> auctions = auctionDAO.getAllAuctions(auctionHouseDAO);
+                for (Auction auction : auctions) {
                     if (auction.getId() == auctionID) {
                         selectedAuction = auction;
                         break;
                     }
                 }
                 if (selectedAuction == null) {
-                    System.out.println("Auction with ID " + auctionID + " not found.");
+                    clientView.showSuccessMessage("Auction with ID " + auctionID + " not found.");
                     return;
                 }
                 clientView.showSuccessMessage("You selected: " + selectedAuction.getTitle());
                 clientView.showSuccessMessage("Specialty: " + selectedAuction.getSpecialty());
-
-                //assign to expert
-                specialty = selectedAuction.getSpecialty(); // e.g., "Modern Art"
+                specialty = selectedAuction.getSpecialty();
                 assignedExpert = findExpertBySpecialty(specialty);
-
                 break;
-
+    
             default:
-                System.out.println("Invalid choice. Please enter 1 or 2.");
+                clientView.showSuccessMessage("Invalid choice. Please enter 1 or 2.");
                 return;
         }
-
+    
         if (assignedExpert == null) {
-            System.out.println("No expert found with specialty: " + specialty);
+            clientView.showSuccessMessage("No expert found with specialty: " + specialty);
             return;
         }
         clientView.showSuccessMessage("Enter any additional notes for the service request:");
         String notes = scanner.nextLine();
         
-        // Create a service request with the current time
         LocalDateTime now = LocalDateTime.now();
-      
         ServiceRequest sr = new ServiceRequest(client, assignedExpert, serviceType, now, notes);
         system.addServiceRequest(sr);
         serviceRequestDAO.createServiceRequest(sr);

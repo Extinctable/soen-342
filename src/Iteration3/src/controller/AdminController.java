@@ -223,16 +223,30 @@ public class AdminController {
     }
     
     public void viewAuctions() {
-        adminView.showSuccessMessage("Listing all Auctions:");
-        for (Auction auction : system.getAuctions()) {
-            adminView.showSuccessMessage(auction.toString());
+        adminView.showSuccessMessage("=== Auction List ===");
+        // Reload auctions from the database. 
+        // (Assuming the method getAllAuctions takes AuctionHouseDAO as a parameter.
+        // If not, adjust accordingly.)
+        List<Auction> auctions = auctionDAO.getAllAuctions(auctionHouseDAO);
+        if (auctions == null || auctions.isEmpty()) {
+            adminView.showSuccessMessage("No auctions available.");
+        } else {
+            for (Auction auction : auctions) {
+                adminView.showSuccessMessage(auction.toString());
+            }
         }
     }
     
     public void viewArtObjects() {
-        adminView.showSuccessMessage("Listing all Art Objects:");
-        for (ArtObject obj : system.getArtObjects()) {
-            adminView.showSuccessMessage(obj.toString());
+        adminView.showSuccessMessage("=== Art Objects List ===");
+        // Reload art objects from the database.
+        List<ArtObject> artObjects = artObjectDAO.getAllArtObjects();
+        if (artObjects == null || artObjects.isEmpty()) {
+            adminView.showSuccessMessage("No art objects available.");
+        } else {
+            for (ArtObject artObject : artObjects) {
+                adminView.showSuccessMessage(artObject.toString());
+            }
         }
     }
     
@@ -263,16 +277,28 @@ public class AdminController {
     }
     
     public void viewServiceRequests() {
-        adminView.showSuccessMessage("Listing all Service Requests:");
-        for (ServiceRequest sr : system.getServiceRequests()) {
-            adminView.showSuccessMessage(sr.toString());
+        adminView.showSuccessMessage("=== Service Requests List ===");
+        // Reload service requests from the database.
+        List<ServiceRequest> serviceRequests = serviceRequestDAO.getAllServiceRequests();
+        if (serviceRequests == null || serviceRequests.isEmpty()) {
+            adminView.showSuccessMessage("No service requests available.");
+        } else {
+            for (ServiceRequest sr : serviceRequests) {
+                adminView.showSuccessMessage(sr.toString());
+            }
         }
     }
     
     public void viewAuctionHouses() {
-        adminView.showSuccessMessage("Listing all Auction Houses:");
-        for (AuctionHouse ah : system.getAuctionHouses()) {
-            adminView.showSuccessMessage(ah.toString());
+        adminView.showSuccessMessage("=== Auction Houses List ===");
+        // Reload auction houses from the database.
+        List<AuctionHouse> auctionHouses = auctionHouseDAO.getAllAuctionHouses();
+        if (auctionHouses == null || auctionHouses.isEmpty()) {
+            adminView.showSuccessMessage("No auction houses available.");
+        } else {
+            for (AuctionHouse ah : auctionHouses) {
+                adminView.showSuccessMessage(ah.toString());
+            }
         }
     }
 }
