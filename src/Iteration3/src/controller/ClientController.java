@@ -61,26 +61,97 @@ public class ClientController {
         }
     }
     
+    private Expert findExpertBySpecialty(String specialty) {
+        for (Expert expert : system.getExperts()) {
+            if (expert.getExpertiseAreas().contains(specialty)) {
+                return expert;
+            }
+        }
+        return null; 
+    }
+    
     private void requestService(Scanner scanner) {
-        clientView.showSuccessMessage("Enter service type (e.g., Consultation for Objects of Interest or Consultation for Auction):");
-        String serviceType = scanner.nextLine();
+        clientView.showSuccessMessage("Choose the type of service you want:");
+        clientView.showSuccessMessage("1. Consultation for Objects of Interest");
+        clientView.showSuccessMessage("2. Consultation for Auction");
+        clientView.showSuccessMessage("Enter 1 or 2:");   
+
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+        String serviceType;
+        String specialty;
+        Expert assignedExpert;
+        switch (choice) {
+            case 1:
+                serviceType = "Consultation for Objects of Interest";
+                clientView.showSuccessMessage("Enter object ID:");
+                int objectID = scanner.nextInt();
+                ArtObject selectedObject = null;
+                for (ArtObject obj : system.getArtObjects()) {
+                    if (obj.getId() == objectID) {
+                        selectedObject = obj;
+                        break;
+                    }
+                }
+
+                if (selectedObject == null) {
+                    System.out.println("ArtObject with ID " + objectID + " not found.");
+                    return;
+                }
+
+                // Display specialty (type)
+                clientView.showSuccessMessage("You selected: " + selectedObject.getTitle());
+                clientView.showSuccessMessage("Specialty (Type): " + selectedObject.getType());
+
+                //assign to expert
+                specialty = selectedObject.getType();
+                assignedExpert = findExpertBySpecialty(specialty);
+
+                break;
+
+            case 2:
+                serviceType = "Consultation for Auction";
+                clientView.showSuccessMessage("Enter auction ID:");
+                int auctionID = scanner.nextInt();
+                Auction selectedAuction = null;
+                for (Auction auction : system.getAuctions()) {
+                    if (auction.getId() == auctionID) {
+                        selectedAuction = auction;
+                        break;
+                    }
+                }
+                if (selectedAuction == null) {
+                    System.out.println("Auction with ID " + auctionID + " not found.");
+                    return;
+                }
+                clientView.showSuccessMessage("You selected: " + selectedAuction.getTitle());
+                clientView.showSuccessMessage("Specialty: " + selectedAuction.getSpecialty());
+
+                //assign to expert
+                specialty = selectedAuction.getSpecialty(); // e.g., "Modern Art"
+                assignedExpert = findExpertBySpecialty(specialty);
+
+                break;
+
+            default:
+                System.out.println("Invalid choice. Please enter 1 or 2.");
+                return;
+        }
+
+        if (assignedExpert == null) {
+            System.out.println("No expert found with specialty: " + specialty);
+            return;
+        }
         clientView.showSuccessMessage("Enter any additional notes for the service request:");
         String notes = scanner.nextLine();
         
+        // Create a service request with the current time
         LocalDateTime now = LocalDateTime.now();
-        
-        // Check if there is at least one expert available.
-        if (system.getExperts().isEmpty()) {
-            clientView.showSuccessMessage("No experts are available at the moment. Please try again later.");
-            return;
-        }
-        
-        Expert assignedExpert = system.getExperts().get(0); // or apply the expert assignment logic here.
-        
+      
         ServiceRequest sr = new ServiceRequest(client, assignedExpert, serviceType, now, notes);
         system.addServiceRequest(sr);
         serviceRequestDAO.createServiceRequest(sr);
         
         clientView.showSuccessMessage("Service request submitted successfully!");
-    }       
+    }    
 }
