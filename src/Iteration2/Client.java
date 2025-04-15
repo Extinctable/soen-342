@@ -1,7 +1,7 @@
-
 /**
  *
  * @author massimocaruso
+ * @author jananaamahathevan
  */
 class Client extends User {
     private String affiliation;
@@ -37,5 +37,10 @@ class Client extends User {
     
     public void setApproved(boolean approved) {
         this.approved = approved;
+    }
+
+    @Override
+    public String getRole() {
+        return "Client";
     }
 }

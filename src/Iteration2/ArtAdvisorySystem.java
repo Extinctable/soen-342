@@ -1,9 +1,13 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
  *
  * @author massimocaruso
+ * @author jananaamahathevan
  */
+
 class ArtAdvisorySystem {
     private Administrator administrator;
     private List<Expert> experts;
@@ -275,5 +279,69 @@ class ArtAdvisorySystem {
         }
         
         return null;
+    }
+
+    public static void createMockData(ArtAdvisorySystem system) {
+        // Add auction houses
+        AuctionHouse christie = new AuctionHouse("Christie's", "London", "christie@example.com");
+        AuctionHouse sotheby = new AuctionHouse("Sotheby's", "New York", "sotheby@example.com");
+        system.addAuctionHouse(christie);
+        system.addAuctionHouse(sotheby);
+        
+        // Add auctions
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime may12_12pm = LocalDateTime.parse("2025-05-12 12:00", formatter);
+        LocalDateTime may12_6pm = LocalDateTime.parse("2025-05-12 18:00", formatter);
+        LocalDateTime may10_10am = LocalDateTime.parse("2025-05-10 10:00", formatter);
+        LocalDateTime may11_4pm = LocalDateTime.parse("2025-05-11 16:00", formatter);
+        
+        Schedule auctionSchedule1 = new Schedule(may12_12pm, may12_6pm);
+        Schedule viewingSchedule1 = new Schedule(may10_10am, may11_4pm);
+        
+        Auction orientalAuction = new Auction("Oriental Auction", "Oriental", christie, auctionSchedule1, false, viewingSchedule1);
+        system.addAuction(orientalAuction);
+        
+        LocalDateTime jun15_10am = LocalDateTime.parse("2025-06-15 10:00", formatter);
+        LocalDateTime jun16_5pm = LocalDateTime.parse("2025-06-16 17:00", formatter);
+        LocalDateTime jun13_11am = LocalDateTime.parse("2025-06-13 11:00", formatter);
+        LocalDateTime jun14_3pm = LocalDateTime.parse("2025-06-14 15:00", formatter);
+        
+        Schedule auctionSchedule2 = new Schedule(jun15_10am, jun16_5pm);
+        Schedule viewingSchedule2 = new Schedule(jun13_11am, jun14_3pm);
+        
+        Auction modernArtAuction = new Auction("Modern Art Auction", "Modern Art", sotheby, auctionSchedule2, false, viewingSchedule2);
+        system.addAuction(modernArtAuction);
+        
+        // Add experts
+        Expert expert1 = new Expert("jsmith", "pass123", "John Smith", "john@example.com", "EXP001");
+        expert1.addExpertiseArea("Oriental");
+        expert1.addExpertiseArea("Ceramics");
+        
+        Expert expert2 = new Expert("mlee", "pass456", "Maria Lee", "maria@example.com", "EXP002");
+        expert2.addExpertiseArea("Modern Art");
+        expert2.addExpertiseArea("Paintings");
+        
+        system.addExpert(expert1);
+        system.addExpert(expert2);
+        
+        // Add client
+        Client client = new Client("client@example.com", "clientpass", "Art Museum", "123-456-7890", "Museum", "Looking for Oriental art pieces");
+        system.addClient(client);
+        
+        // Add art objects
+        ArtObject object1 = new ArtObject("Ming Vase", "A beautiful Ming Dynasty vase from the 15th century", "Ceramics", false, true, orientalAuction);
+        ArtObject object2 = new ArtObject("Abstract Painting", "Modern abstract painting by renowned artist", "Paintings", true, false, null);
+        
+        system.addArtObject(object1);
+        system.addArtObject(object2);
+        
+        // Add availability for experts
+        LocalDateTime avail1Start = LocalDateTime.parse("2025-05-11 09:00", formatter);
+        LocalDateTime avail1End = LocalDateTime.parse("2025-05-11 17:00", formatter);
+        expert1.addAvailability(new Schedule(avail1Start, avail1End));
+        
+        LocalDateTime avail2Start = LocalDateTime.parse("2025-06-14 10:00", formatter);
+        LocalDateTime avail2End = LocalDateTime.parse("2025-06-14 16:00", formatter);
+        expert2.addAvailability(new Schedule(avail2Start, avail2End));
     }
 }

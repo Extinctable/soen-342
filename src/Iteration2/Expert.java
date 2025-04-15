@@ -3,7 +3,9 @@ import java.util.*;
 /**
  *
  * @author massimocaruso
+ * @author jananaamahathevan
  */
+
 class Expert extends User {
     private String licenseNumber;
     private Set<String> expertiseAreas;
@@ -48,5 +50,10 @@ class Expert extends User {
         if (index >= 0 && index < availability.size()) {
             availability.remove(index);
         }
+    }
+
+    @Override
+    public String getRole() {
+        return "Expert";
     }
 }

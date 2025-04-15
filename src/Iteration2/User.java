@@ -2,7 +2,9 @@
 /**
  *
  * @author massimocaruso
+ * @author jananaamahathevan
  */
+
 abstract class User {
     private static int nextId = 1;
     
@@ -51,4 +53,6 @@ abstract class User {
     public boolean authenticate(String password) {
         return this.password.equals(password);
     }
+
+    public abstract String getRole();
 }
