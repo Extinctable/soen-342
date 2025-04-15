@@ -70,22 +70,29 @@ public class AuctionDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
-             
-            while (rs.next()) {
+
+            while (rs.next()){
                 int auctionHouseId = rs.getInt("auction_house_id");
                 AuctionHouse auctionHouse = auctionHouseDAO.getAuctionHouseById(auctionHouseId);
                 Timestamp ts = rs.getTimestamp("auction_schedule");
+                // Create a schedule using the DB value.
                 Schedule schedule = new Schedule(ts.toLocalDateTime(), ts.toLocalDateTime());
                 Timestamp vts = rs.getTimestamp("viewing_schedule");
                 Schedule viewingSchedule = new Schedule(vts.toLocalDateTime(), vts.toLocalDateTime());
+                
+                // Create an Auction object. Note that calling the constructor assigns an ID 
+                // using nextId++—we fix that by updating it immediately.
                 Auction auction = new Auction(
                     rs.getString("auction_name"),
                     rs.getString("auction_type"),
                     auctionHouse,
                     schedule,
                     rs.getBoolean("is_online"),
-                    viewingSchedule
-                );
+                    viewingSchedule);
+                
+                // Set the correct auction_id from the DB:
+                auction.setId(rs.getInt("auction_id"));
+                
                 auctions.add(auction);
             }
         } catch (SQLException ex) {

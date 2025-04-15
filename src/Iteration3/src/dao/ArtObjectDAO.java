@@ -1,11 +1,10 @@
 // File: dao/ArtObjectDAO.java
 package dao;
 
-import model.ArtObject;
-import model.Auction;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import model.ArtObject;
 
 public class ArtObjectDAO {
     public void createArtObject(ArtObject obj) {
@@ -61,16 +60,19 @@ public class ArtObjectDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
-             
-            while (rs.next()) {
+
+            while (rs.next()){
+                // Create an ArtObject using the constructor.
                 ArtObject obj = new ArtObject(
                      rs.getString("object_name"),
                      rs.getString("object_description"),
                      rs.getString("object_type"),
                      rs.getBoolean("is_owned_by_institution"),
-                     false,
-                     null
+                     false, // isToBeAuctioned flag, adjust if needed
+                     null   // auction reference, adjust if needed
                 );
+                // Set the correct object ID from the DB.
+                obj.setId(rs.getInt("object_id"));
                 objects.add(obj);
             }
         } catch (SQLException ex) {

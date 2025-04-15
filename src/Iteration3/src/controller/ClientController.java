@@ -108,7 +108,7 @@ public class ClientController {
         clientView.showSuccessMessage("Enter 1 or 2:");   
     
         int choice = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        scanner.nextLine();  // consume newline
         String serviceType;
         String specialty = "";
         Expert assignedExpert = null;
@@ -120,7 +120,9 @@ public class ClientController {
                 serviceType = "Consultation for Objects of Interest";
                 clientView.showSuccessMessage("Enter object ID:");
                 int objectID = scanner.nextInt();
-                scanner.nextLine();
+                scanner.nextLine();  // consume newline
+    
+                // Query the latest art objects from the DAO
                 List<ArtObject> artObjects = artObjectDAO.getAllArtObjects();
                 for (ArtObject obj : artObjects) {
                     if (obj.getId() == objectID) {
@@ -142,7 +144,9 @@ public class ClientController {
                 serviceType = "Consultation for Auction";
                 clientView.showSuccessMessage("Enter auction ID:");
                 int auctionID = scanner.nextInt();
-                scanner.nextLine();
+                scanner.nextLine(); // consume newline
+    
+                // Query the latest auctions from the DAO
                 List<Auction> auctions = auctionDAO.getAllAuctions(auctionHouseDAO);
                 for (Auction auction : auctions) {
                     if (auction.getId() == auctionID) {
@@ -169,10 +173,12 @@ public class ClientController {
             clientView.showSuccessMessage("No expert found with specialty: " + specialty);
             return;
         }
+        
         clientView.showSuccessMessage("Enter any additional notes for the service request:");
         String notes = scanner.nextLine();
         
         LocalDateTime now = LocalDateTime.now();
+        
         ServiceRequest sr = new ServiceRequest(client, assignedExpert, serviceType, now, notes);
         system.addServiceRequest(sr);
         serviceRequestDAO.createServiceRequest(sr);
