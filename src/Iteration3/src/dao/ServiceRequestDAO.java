@@ -12,16 +12,17 @@ import model.Expert;
 import model.ServiceRequest;
 
 public class ServiceRequestDAO {
+    
     public void createServiceRequest(ServiceRequest sr) {
         String sql = "INSERT INTO service_request (client_id, expert_id, service_type, requested_time, notes, status, object_id, auction_id) "
                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
              
-            // Client ID should not be null since the client exists.
+            // Set client_id (assumed non-null)
             pstmt.setInt(1, sr.getClient().getId());
             
-            // Check if expert is provided. If not, set SQL null.
+            // Set expert_id if available, else SQL null.
             if (sr.getExpert() != null) {
                 pstmt.setInt(2, sr.getExpert().getId());
             } else {
@@ -33,12 +34,13 @@ public class ServiceRequestDAO {
             pstmt.setString(5, sr.getNotes());
             pstmt.setString(6, sr.getStatus());
             
-            // For art object and auction, if they are null, set SQL null.
+            // Set art_object_id if not null.
             if (sr.getArtObject() != null) {
                 pstmt.setInt(7, sr.getArtObject().getId());
             } else {
                 pstmt.setNull(7, Types.INTEGER);
             }
+            // Set auction_id if not null.
             if (sr.getAuction() != null) {
                 pstmt.setInt(8, sr.getAuction().getId());
             } else {
@@ -48,7 +50,7 @@ public class ServiceRequestDAO {
             pstmt.executeUpdate();
             ResultSet generatedKeys = pstmt.getGeneratedKeys();
             if (generatedKeys.next()) {
-                // Optionally update the service request ID in the object.
+                // Optionally update the service request object with the generated id.
                 // sr.setId(generatedKeys.getInt(1));
             }
         } catch (SQLException ex) {
@@ -64,17 +66,39 @@ public class ServiceRequestDAO {
             pstmt.setInt(1, id);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                // For retrieval, you would normally join and get the full Client/Expert objects.
-                Client client = new Client("dummy", "dummy", "Dummy", "dummy", "dummy", "dummy");
-                Expert expert = new Expert("dummy", "dummy", "Dummy", "dummy", "dummy", "dummy");
-                ServiceRequest sr = new ServiceRequest(
-                     client,
-                     expert,
-                     rs.getString("service_type"),
-                     rs.getTimestamp("requested_time").toLocalDateTime(),
-                     rs.getString("notes")
-                );
+                // Create minimal objects for client and expert.
+                Client client = new Client("dummy", "dummy", "dummy", "dummy", "dummy", "dummy");
+                client.setId(rs.getInt("client_id"));
+                
+                Expert expert = null;
+                int expertId = rs.getInt("expert_id");
+                if (!rs.wasNull()) {
+                    expert = new Expert("dummy", "dummy", "dummy", "dummy", "dummy", "dummy");
+                    expert.setId(expertId);
+                }
+                
+                // Create ArtObject if available.
+                ArtObject artObject = null;
+                int artObjectId = rs.getInt("object_id");
+                if (!rs.wasNull()) {
+                    artObject = new ArtObject("dummy", "dummy", "dummy", false, false, null);
+                    artObject.setId(artObjectId);
+                }
+                
+                // Create Auction if available.
+                Auction auction = null;
+                int auctionId = rs.getInt("auction_id");
+                if (!rs.wasNull()) {
+                    auction = new Auction("dummy", "dummy", null, null, false, null);
+                    auction.setId(auctionId);
+                }
+                
+                LocalDateTime requestedTime = rs.getTimestamp("requested_time").toLocalDateTime();
+                ServiceRequest sr = new ServiceRequest(client, expert, rs.getString("service_type"), requestedTime, rs.getString("notes"));
                 sr.setStatus(rs.getString("status"));
+                sr.setId(rs.getInt("request_id"));
+                sr.setArtObject(artObject);
+                sr.setAuction(auction);
                 return sr;
             }
         } catch (SQLException ex) {
@@ -90,12 +114,12 @@ public class ServiceRequestDAO {
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
              
-            while(rs.next()){
-                // Create a minimal Client object with its ID.
+            while (rs.next()){
+                // Create a minimal client object and set its ID.
                 Client client = new Client("dummy", "dummy", "dummy", "dummy", "dummy", "dummy");
                 client.setId(rs.getInt("client_id"));
                 
-                // For Expert, if expert_id is null, leave it null.
+                // Create expert object if expert_id is present.
                 Expert expert = null;
                 int expertId = rs.getInt("expert_id");
                 if (!rs.wasNull()){
@@ -103,7 +127,7 @@ public class ServiceRequestDAO {
                     expert.setId(expertId);
                 }
                 
-                // For ArtObject, if object_id is not null.
+                // Create art object if object_id is not null.
                 ArtObject artObject = null;
                 int artObjectId = rs.getInt("object_id");
                 if (!rs.wasNull()){
@@ -111,7 +135,7 @@ public class ServiceRequestDAO {
                     artObject.setId(artObjectId);
                 }
                 
-                // For Auction, if auction_id is not null.
+                // Create auction if auction_id is not null.
                 Auction auction = null;
                 int auctionId = rs.getInt("auction_id");
                 if (!rs.wasNull()){
@@ -140,7 +164,11 @@ public class ServiceRequestDAO {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
              
             pstmt.setInt(1, sr.getClient().getId());
-            pstmt.setInt(2, sr.getExpert().getId());
+            if (sr.getExpert() != null) {
+                pstmt.setInt(2, sr.getExpert().getId());
+            } else {
+                pstmt.setNull(2, Types.INTEGER);
+            }
             pstmt.setString(3, sr.getServiceType());
             pstmt.setTimestamp(4, Timestamp.valueOf(sr.getRequestedTime()));
             pstmt.setString(5, sr.getNotes());
