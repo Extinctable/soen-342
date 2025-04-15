@@ -1,20 +1,18 @@
 // File: model/Expert.java
 package model;
 
-import java.util.Set;
-import java.util.List;
-import java.util.HashSet;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Expert extends User {
     private String licenseNumber;
-    private Set<String> expertiseAreas;
+    private String expertiseAreas;
     private List<Schedule> availability;
 
-    public Expert(String username, String password, String name, String contactInfo, String licenseNumber) {
+    public Expert(String username, String password, String name, String contactInfo, String licenseNumber, String expertiseAreas) {
         super(username, password, name, contactInfo);
         this.licenseNumber = licenseNumber;
-        this.expertiseAreas = new HashSet<>();
+        this.expertiseAreas = expertiseAreas;
         this.availability = new ArrayList<>();
         this.role = "Expert";
     }
@@ -26,14 +24,8 @@ public class Expert extends User {
         this.licenseNumber = licenseNumber;
     }
     
-    public Set<String> getExpertiseAreas() {
+    public String getExpertiseAreas() {
         return expertiseAreas;
-    }
-    public void addExpertiseArea(String area) {
-        expertiseAreas.add(area);
-    }
-    public void removeExpertiseArea(String area) {
-        expertiseAreas.remove(area);
     }
     
     public List<Schedule> getAvailability() {

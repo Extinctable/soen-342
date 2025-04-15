@@ -172,16 +172,10 @@ public class AdminController {
         String contact = scanner.nextLine();
         adminView.showSuccessMessage("Enter Expert License Number:");
         String license = scanner.nextLine();
+        adminView.showSuccessMessage("Enter areas of expertise:");
+        String expertiseArea = scanner.nextLine();
         
-        Expert expert = new Expert(username, password, name, contact, license);
-        
-        // Add expertise areas
-        adminView.showSuccessMessage("Enter areas of expertise (comma-separated):");
-        String areasInput = scanner.nextLine();
-        String[] areas = areasInput.split(",");
-        for (String area : areas) {
-            expert.addExpertiseArea(area.trim());
-        }
+        Expert expert = new Expert(username, password, name, contact, license, expertiseArea);
         
         // Optionally add an availability schedule
         adminView.showSuccessMessage("Do you want to add availability schedule? (yes/no)");

@@ -8,19 +8,6 @@ import model.Schedule;
 
 public class ExpertDAO {
     
-    // Utility: convert expertise set to a comma-separated string.
-    private String expertiseSetToString(Expert expert) {
-        if (expert.getExpertiseAreas().isEmpty()) {
-            return "";
-        }
-        StringBuilder sb = new StringBuilder();
-        for (String area : expert.getExpertiseAreas()) {
-            sb.append(area).append(",");
-        }
-        // Remove the last comma.
-        return sb.substring(0, sb.length() - 1);
-    }
-    
     // Utility: convert availability list to a string (each schedule as startTime-endTime separated by semicolons).
     private String scheduleListToString(Expert expert) {
         if (expert.getAvailability().isEmpty()) {
@@ -44,7 +31,7 @@ public class ExpertDAO {
             pstmt.setString(4, expert.getName());
             pstmt.setString(5, expert.getContactInfo());
             pstmt.setString(6, expert.getLicenseNumber());
-            pstmt.setString(7, expertiseSetToString(expert));
+            pstmt.setString(7, expert.getExpertiseAreas());
             pstmt.setString(8, scheduleListToString(expert));
             pstmt.executeUpdate();
             
@@ -71,7 +58,8 @@ public class ExpertDAO {
                     rs.getString("password"),  // password
                     rs.getString("expert_name"),
                     rs.getString("expert_contact_address"),
-                    rs.getString("expert_license_number")
+                    rs.getString("expert_license_number"),
+                    rs.getString("area_of_expertise")
                 );
                 // Optionally, parse and set the expertise areas and availability schedule
                 // For brevity, we are not parsing them back into collections here.
@@ -96,7 +84,8 @@ public class ExpertDAO {
                     rs.getString("password"),
                     rs.getString("expert_name"),
                     rs.getString("expert_contact_address"),
-                    rs.getString("expert_license_number")
+                    rs.getString("expert_license_number"),
+                    rs.getString("area_of_expertise")
                 );
                 // Note: Expertise areas and availability schedule are not parsed back in this simple example.
                 experts.add(expert);
@@ -117,7 +106,7 @@ public class ExpertDAO {
             pstmt.setString(3, expert.getName());
             pstmt.setString(4, expert.getContactInfo());
             pstmt.setString(5, expert.getLicenseNumber());
-            pstmt.setString(6, expertiseSetToString(expert));
+            pstmt.setString(6, expert.getExpertiseAreas());
             pstmt.setString(7, scheduleListToString(expert));
             pstmt.setInt(8, id);
             pstmt.executeUpdate();

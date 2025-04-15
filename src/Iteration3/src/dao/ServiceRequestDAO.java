@@ -63,7 +63,7 @@ public class ServiceRequestDAO {
             if (rs.next()) {
                 // For retrieval, you would normally join and get the full Client/Expert objects.
                 Client client = new Client("dummy", "dummy", "Dummy", "dummy", "dummy", "dummy");
-                Expert expert = new Expert("dummy", "dummy", "Dummy", "dummy", "dummy");
+                Expert expert = new Expert("dummy", "dummy", "Dummy", "dummy", "dummy", "dummy");
                 ServiceRequest sr = new ServiceRequest(
                      client,
                      expert,
@@ -89,7 +89,7 @@ public class ServiceRequestDAO {
              
             while (rs.next()) {
                 Client client = new Client("dummy", "dummy", "Dummy", "dummy", "dummy", "dummy");
-                Expert expert = new Expert("dummy", "dummy", "Dummy", "dummy", "dummy");
+                Expert expert = new Expert("dummy", "dummy", "Dummy", "dummy", "dummy", "dummy");
                 ServiceRequest sr = new ServiceRequest(
                      client,
                      expert,
