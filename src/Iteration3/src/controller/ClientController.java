@@ -1,3 +1,4 @@
+// File: controller/ClientController.java
 package controller;
 
 import dao.ArtObjectDAO;
@@ -60,7 +61,7 @@ public class ClientController {
         }
     }
     
-    // Queries the persistent storage for auctions.
+    // Queries the database for auctions.
     private void viewAuctions() {
         clientView.showSuccessMessage("=== Available Auctions ===");
         List<Auction> auctions = auctionDAO.getAllAuctions(auctionHouseDAO);
@@ -73,7 +74,7 @@ public class ClientController {
         }
     }
     
-    // Queries the persistent storage for art objects.
+    // Queries the database for art objects.
     private void viewArtObjects() {
         clientView.showSuccessMessage("=== Available Art Objects ===");
         List<ArtObject> artObjects = artObjectDAO.getAllArtObjects();
@@ -86,23 +87,27 @@ public class ClientController {
         }
     }
     
+    // Retrieves a fresh list of experts from the database and looks for one whose expertise matches the given specialty.
     private Expert findExpertBySpecialty(String specialty) {
         ExpertDAO expertDAO = new ExpertDAO();
         List<Expert> experts = expertDAO.getAllExperts();
-        for (Expert expert : experts) {
-            // Split the expertise string by commas and check if specialty is present.
-            if (expert.getExpertiseAreas() != null) {
-                String[] areas = expert.getExpertiseAreas().split(",");
-                for (String area : areas) {
-                    if (area.trim().equalsIgnoreCase(specialty)) {
-                        return expert;
+        if (experts != null) {
+            for (Expert expert : experts) {
+                String expertiseStr = expert.getExpertiseAreas();
+                if (expertiseStr != null && !expertiseStr.isEmpty()) {
+                    // Split the expertise string by commas.
+                    String[] areas = expertiseStr.split(",");
+                    for (String area : areas) {
+                        if (area.trim().equalsIgnoreCase(specialty)) {
+                            return expert;
+                        }
                     }
                 }
             }
         }
         return null;
-    }    
-
+    }
+    
     // Allows the client to request a service by selecting a service type and item.
     private void requestService(Scanner scanner) {
         clientView.showSuccessMessage("Choose the type of service you want:");
@@ -125,7 +130,7 @@ public class ClientController {
                 int objectID = scanner.nextInt();
                 scanner.nextLine();  // consume newline
     
-                // Query the latest art objects from the DAO
+                // Use the DAO to retrieve the latest art objects.
                 List<ArtObject> artObjects = artObjectDAO.getAllArtObjects();
                 for (ArtObject obj : artObjects) {
                     if (obj.getId() == objectID) {
@@ -149,7 +154,7 @@ public class ClientController {
                 int auctionID = scanner.nextInt();
                 scanner.nextLine(); // consume newline
     
-                // Query the latest auctions from the DAO
+                // Use the DAO to retrieve the latest auctions.
                 List<Auction> auctions = auctionDAO.getAllAuctions(auctionHouseDAO);
                 for (Auction auction : auctions) {
                     if (auction.getId() == auctionID) {
