@@ -3,6 +3,7 @@ package controller;
 import dao.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Scanner;
 import model.*;
 import view.AdminView;
@@ -236,16 +237,28 @@ public class AdminController {
     }
     
     public void viewExperts() {
-        adminView.showSuccessMessage("Listing all Experts:");
-        for (Expert expert : system.getExperts()) {
-            adminView.showSuccessMessage(expert.toString());
+        adminView.showSuccessMessage("=== Expert List ===");
+        // Instead of system.getExperts(), query the database.
+        List<Expert> experts = expertDAO.getAllExperts();
+        if (experts == null || experts.isEmpty()) {
+            adminView.showSuccessMessage("No experts available.");
+        } else {
+            for (Expert expert : experts) {
+                adminView.showSuccessMessage(expert.toString());
+            }
         }
     }
     
     public void viewClients() {
-        adminView.showSuccessMessage("Listing all Clients:");
-        for (Client client : system.getClients()) {
-            adminView.showSuccessMessage(client.toString());
+        adminView.showSuccessMessage("=== Client List ===");
+        // Instead of system.getClients(), query the database.
+        List<Client> clients = clientDAO.getAllClients();
+        if (clients == null || clients.isEmpty()) {
+            adminView.showSuccessMessage("No clients available.");
+        } else {
+            for (Client client : clients) {
+                adminView.showSuccessMessage(client.toString());
+            }
         }
     }
     

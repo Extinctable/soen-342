@@ -82,5 +82,5 @@ public class ClientController {
         serviceRequestDAO.createServiceRequest(sr);
         
         clientView.showSuccessMessage("Service request submitted successfully!");
-    }    
+    }       
 }

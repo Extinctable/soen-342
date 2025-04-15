@@ -8,8 +8,8 @@ import java.sql.Statement;
 public class CreateSchema {
 // Database connection parameters
 private static final String URL = "jdbc:postgresql://localhost:5432/Soen342";
-private static final String USER = "jananaamahathevan";  
-private static final String PASSWORD = "admin123"; 
+private static final String USER = "postgres";  
+private static final String PASSWORD = "Extinctable4*"; 
 
     public static void main(String[] args) {
         // Load the PostgreSQL JDBC Driver
@@ -89,7 +89,7 @@ private static final String PASSWORD = "admin123";
                         "auction_name VARCHAR(255) NOT NULL, " +
                         "auction_schedule TIMESTAMP, " +
                         "is_online BOOLEAN, " +
-                        "viewing_schedule, " +
+                        "viewing_schedule TIMESTAMP, " +
                         "auction_type VARCHAR(100), " +
                         "FOREIGN KEY (auction_house_id) REFERENCES auction_house(auction_house_id) ON DELETE CASCADE" +
                     ");",
