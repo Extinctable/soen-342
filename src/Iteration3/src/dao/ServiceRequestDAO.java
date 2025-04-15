@@ -2,8 +2,11 @@
 package dao;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import model.ArtObject;
+import model.Auction;
 import model.Client;
 import model.Expert;
 import model.ServiceRequest;
@@ -81,29 +84,54 @@ public class ServiceRequestDAO {
     }
     
     public List<ServiceRequest> getAllServiceRequests() {
-        List<ServiceRequest> srs = new ArrayList<>();
+        List<ServiceRequest> requests = new ArrayList<>();
         String sql = "SELECT * FROM service_request";
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
              
-            while (rs.next()) {
-                Client client = new Client("dummy", "dummy", "Dummy", "dummy", "dummy", "dummy");
-                Expert expert = new Expert("dummy", "dummy", "Dummy", "dummy", "dummy");
-                ServiceRequest sr = new ServiceRequest(
-                     client,
-                     expert,
-                     rs.getString("service_type"),
-                     rs.getTimestamp("requested_time").toLocalDateTime(),
-                     rs.getString("notes")
-                );
+            while(rs.next()){
+                // Create a minimal Client object with its ID.
+                Client client = new Client("dummy", "dummy", "dummy", "dummy", "dummy", "dummy");
+                client.setId(rs.getInt("client_id"));
+                
+                // For Expert, if expert_id is null, leave it null.
+                Expert expert = null;
+                int expertId = rs.getInt("expert_id");
+                if (!rs.wasNull()){
+                    expert = new Expert("dummy", "dummy", "dummy", "dummy", "dummy");
+                    expert.setId(expertId);
+                }
+                
+                // For ArtObject, if object_id is not null.
+                ArtObject artObject = null;
+                int artObjectId = rs.getInt("object_id");
+                if (!rs.wasNull()){
+                    artObject = new ArtObject("dummy", "dummy", "dummy", false, false, null);
+                    artObject.setId(artObjectId);
+                }
+                
+                // For Auction, if auction_id is not null.
+                Auction auction = null;
+                int auctionId = rs.getInt("auction_id");
+                if (!rs.wasNull()){
+                    auction = new Auction("dummy", "dummy", null, null, false, null);
+                    auction.setId(auctionId);
+                }
+                
+                LocalDateTime requestedTime = rs.getTimestamp("requested_time").toLocalDateTime();
+                ServiceRequest sr = new ServiceRequest(client, expert, rs.getString("service_type"), requestedTime, rs.getString("notes"));
                 sr.setStatus(rs.getString("status"));
-                srs.add(sr);
+                sr.setId(rs.getInt("request_id"));
+                sr.setArtObject(artObject);
+                sr.setAuction(auction);
+                
+                requests.add(sr);
             }
-        } catch (SQLException ex) {
+        } catch (SQLException ex){
             ex.printStackTrace();
         }
-        return srs;
+        return requests;
     }
     
     public void updateServiceRequest(ServiceRequest sr, int id) {

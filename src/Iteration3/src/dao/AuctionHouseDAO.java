@@ -1,10 +1,10 @@
 // File: dao/AuctionHouseDAO.java
 package dao;
 
-import model.AuctionHouse;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import model.AuctionHouse;
 
 public class AuctionHouseDAO {
     public void createAuctionHouse(AuctionHouse ah) {
@@ -54,12 +54,14 @@ public class AuctionHouseDAO {
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
              
-            while (rs.next()) {
+            while (rs.next()){
                 AuctionHouse ah = new AuctionHouse(
-                    rs.getString("auction_house_name"),
-                    rs.getString("auction_house_location"),
-                    rs.getString("auction_house_contact_info")
+                        rs.getString("auction_house_name"),
+                        rs.getString("auction_house_location"),
+                        rs.getString("auction_house_contact_info")
                 );
+                // Set the actual ID from the DB.
+                ah.setId(rs.getInt("auction_house_id"));
                 houses.add(ah);
             }
         } catch (SQLException ex) {
