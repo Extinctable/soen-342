@@ -85,8 +85,8 @@ public class Main {
                     System.out.print("Enter password: ");
                     String clientPassword = scanner.nextLine();
                     ClientDAO clientDAO = new ClientDAO();
-                    Client client = authenticateClient(clientUsername, clientPassword, clientDAO);
-                    if (client != null) {
+                    Client client = clientDAO.getClientByEmail(clientUsername);
+                    if (client != null && client.getPassword().equals(clientPassword)) {
                         if (!client.isApproved()) {
                             System.out.println("Your account is pending administrator approval. Please try again later.");
                         } else {
