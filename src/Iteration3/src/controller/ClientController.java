@@ -3,6 +3,7 @@ package controller;
 import dao.ArtObjectDAO;
 import dao.AuctionDAO;
 import dao.AuctionHouseDAO;
+import dao.ExpertDAO;
 import dao.ServiceRequestDAO;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -85,21 +86,23 @@ public class ClientController {
         }
     }
     
-    // Searches for an expert by specialty using persistent data.
     private Expert findExpertBySpecialty(String specialty) {
-        // Optionally, you could instantiate ExpertDAO here.
-        // For simplicity, we iterate over the experts returned by the DAO.
-        List<Expert> experts = (new dao.ExpertDAO()).getAllExperts();
-        if (experts != null) {
-            for (Expert expert : experts) {
-                if (expert.getExpertiseAreas().contains(specialty)) {
-                    return expert;
+        ExpertDAO expertDAO = new ExpertDAO();
+        List<Expert> experts = expertDAO.getAllExperts();
+        for (Expert expert : experts) {
+            // Split the expertise string by commas and check if specialty is present.
+            if (expert.getExpertiseAreas() != null) {
+                String[] areas = expert.getExpertiseAreas().split(",");
+                for (String area : areas) {
+                    if (area.trim().equalsIgnoreCase(specialty)) {
+                        return expert;
+                    }
                 }
             }
         }
-        return null; 
-    }
-    
+        return null;
+    }    
+
     // Allows the client to request a service by selecting a service type and item.
     private void requestService(Scanner scanner) {
         clientView.showSuccessMessage("Choose the type of service you want:");

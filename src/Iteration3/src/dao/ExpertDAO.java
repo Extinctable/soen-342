@@ -1,3 +1,4 @@
+// File: dao/ExpertDAO.java
 package dao;
 
 import java.sql.*;
@@ -8,7 +9,8 @@ import model.Schedule;
 
 public class ExpertDAO {
     
-    // Utility: convert availability list to a string (each schedule as startTime-endTime separated by semicolons).
+    // Utility method: converts the expert's availability list into a string.
+    // Each Schedule is represented as "startTime-endTime" separated by semicolons.
     private String scheduleListToString(Expert expert) {
         if (expert.getAvailability().isEmpty()) {
             return "";
@@ -20,31 +22,34 @@ public class ExpertDAO {
         return sb.toString();
     }
     
+    // Inserts a new Expert into the database and sets its generated ID.
     public void createExpert(Expert expert) {
-        String sql = "INSERT INTO expert (username, password, institution_id, expert_name, expert_contact_address, expert_license_number, area_of_expertise, availability_schedule) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO expert (username, password, institution_id, expert_name, expert_contact_address, expert_license_number, area_of_expertise, availability_schedule) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
              
             pstmt.setString(1, expert.getUsername());
             pstmt.setString(2, expert.getPassword());
-            pstmt.setNull(3, Types.INTEGER); // institution_id
+            pstmt.setNull(3, Types.INTEGER); // institution_id (not set yet)
             pstmt.setString(4, expert.getName());
             pstmt.setString(5, expert.getContactInfo());
             pstmt.setString(6, expert.getLicenseNumber());
+            // Simply use the expertise string from the model.
             pstmt.setString(7, expert.getExpertiseAreas());
             pstmt.setString(8, scheduleListToString(expert));
             pstmt.executeUpdate();
             
             ResultSet generatedKeys = pstmt.getGeneratedKeys();
             if (generatedKeys.next()) {
-                int generatedId = generatedKeys.getInt(1);
-                expert.setId(generatedId);
+                expert.setId(generatedKeys.getInt(1));
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
     
+    // Retrieves a single Expert by its ID and sets its persistent ID.
     public Expert getExpertById(int id) {
         String sql = "SELECT * FROM expert WHERE expert_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -61,8 +66,8 @@ public class ExpertDAO {
                     rs.getString("expert_license_number"),
                     rs.getString("area_of_expertise")
                 );
-                // Optionally, parse and set the expertise areas and availability schedule
-                // For brevity, we are not parsing them back into collections here.
+                expert.setId(rs.getInt("expert_id"));
+                // (Optional: parse and set the availability_schedule if needed.)
                 return expert;
             }
         } catch (SQLException ex) {
@@ -71,6 +76,7 @@ public class ExpertDAO {
         return null;
     }
     
+    // Retrieves all Experts from the database, setting each object's ID.
     public List<Expert> getAllExperts() {
         List<Expert> experts = new ArrayList<>();
         String sql = "SELECT * FROM expert";
@@ -87,7 +93,8 @@ public class ExpertDAO {
                     rs.getString("expert_license_number"),
                     rs.getString("area_of_expertise")
                 );
-                // Note: Expertise areas and availability schedule are not parsed back in this simple example.
+                // Set the persistent ID from the database.
+                expert.setId(rs.getInt("expert_id"));
                 experts.add(expert);
             }
         } catch (SQLException ex) {
@@ -96,6 +103,7 @@ public class ExpertDAO {
         return experts;
     }
     
+    // Updates an existing Expert record.
     public void updateExpert(Expert expert, int id) {
         String sql = "UPDATE expert SET username = ?, password = ?, expert_name = ?, expert_contact_address = ?, expert_license_number = ?, area_of_expertise = ?, availability_schedule = ? WHERE expert_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -115,11 +123,11 @@ public class ExpertDAO {
         }
     }
     
+    // Deletes an Expert record.
     public void deleteExpert(int id) {
         String sql = "DELETE FROM expert WHERE expert_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-             
             pstmt.setInt(1, id);
             pstmt.executeUpdate();
         } catch (SQLException ex) {
