@@ -2,9 +2,7 @@
 package model;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class ArtAdvisorySystem {
     private Administrator administrator;
@@ -100,14 +98,6 @@ public class ArtAdvisorySystem {
         return serviceRequests;
     }
     
-    public Set<String> getAllExpertiseAreas() {
-        Set<String> allAreas = new HashSet<>();
-        for (Expert expert : experts) {
-            allAreas.addAll(expert.getExpertiseAreas());
-        }
-        return allAreas;
-    }
-    
     // Lookup methods by id
     public Expert getExpertById(int id) {
         for (Expert expert : experts) {
@@ -161,8 +151,7 @@ public class ArtAdvisorySystem {
         Client client1 = new Client("jdoe", "password", "John Doe", "jdoe@example.com", "ClientAffil", "I need consultation");
         system.addClient(client1);
         
-        Expert expert1 = new Expert("asmith", "password", "Alice Smith", "alice@example.com", "LIC001");
-        expert1.addExpertiseArea("Contemporary Art");
+        Expert expert1 = new Expert("asmith", "password", "Alice Smith", "alice@example.com", "LIC001", "Contemporary Art");
         system.addExpert(expert1);
         
         AuctionHouse ah1 = new AuctionHouse("Modern Auctions", "123 Auction St", "contact@modernauctions.com");

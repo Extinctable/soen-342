@@ -77,6 +77,8 @@ public class ExpertController {
         if (!found) {
             expertView.showSuccessMessage("No auctions match your expertise.");
         }
+
+        System.out.println("Expert Expertise Areas: " + expert.getExpertiseAreas());
     }
     
     // Updated viewArtObjectsByExpertise: reload art objects from DB and filter them.
@@ -98,6 +100,8 @@ public class ExpertController {
         if (!found) {
             expertView.showSuccessMessage("No art objects match your expertise.");
         }
+
+        System.out.println("Expert Expertise Areas: " + expert.getExpertiseAreas());
     }
     
     private void updateExpertAvailability(Scanner scanner) {
@@ -123,5 +127,7 @@ public class ExpertController {
         if (!found) {
             expertView.showSuccessMessage("No service requests assigned to you.");
         }
+
+        System.out.println("Expert Expertise Areas: " + expert.getExpertiseAreas());
     }
 }
