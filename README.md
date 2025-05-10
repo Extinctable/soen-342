@@ -1,4 +1,5 @@
-# john-wick-soen-342
+# soen-342
+Team name: John Wick
 Academic Project, Winter 2025, SOEN 342: Software Requirements and Deployment
 
 ### Contributors:
@@ -10,3 +11,5 @@ Academic Project, Winter 2025, SOEN 342: Software Requirements and Deployment
   
 Demo link:
 https://drive.google.com/file/d/1NgCIG4zObhNMZeTLyhT2Sbmu-Uxp2_1v/view?usp=sharing
+
+Final Grade: A+ (97%)
